@@ -1,5 +1,26 @@
+import { prismaClient } from 'db/client';
 import express from 'express'
+import { authMiddleware } from './middleware';
 
 const router = express.Router();
 
-router.get('', authMiddleware, async(req, res) )
+router.post('/createProfile', authMiddleware, async(req, res) => {
+        const userId = req.userId || "";
+        try {
+            const user = await prismaClient.user.create({
+            data: {
+                clerkUserId: userId,
+                name: req.body.name,
+                email: req.body.email,
+                username: req.body.username,
+                imageUrl: req.body.imageUrl
+            }
+        })
+            res.status(200).json(user)
+        } catch(e) {
+            res.status(400).json({error: "Failed to create user"})
+        }
+    }
+)
+
+export default router 

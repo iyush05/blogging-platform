@@ -3,6 +3,7 @@
 import * as React from "react"
 import { EditorContent, EditorContext, useEditor } from "@tiptap/react"
 import debounce from "lodash.debounce"
+import axios from "axios"
 
 // --- Tiptap Core Extensions ---
 import { StarterKit } from "@tiptap/starter-kit"
@@ -78,6 +79,9 @@ import "@/components/tiptap-templates/simple/simple-editor.scss"
 
 import content from "@/components/tiptap-templates/simple/data/content.json"
 import { prismaClient } from "db/client"
+import extractTitle from "../parser"
+import { BACKEND_URL } from "@/config"
+import { useAuth } from "@clerk/nextjs"
 
 const MainToolbarContent = ({
   onHighlighterClick,
@@ -184,13 +188,15 @@ const MobileToolbarContent = ({
   </>
 )
 
-export function SimpleEditor() {
+export function SimpleEditor({clerkUserId}: {clerkUserId: string}) {
   const isMobile = useMobile()
   const windowSize = useWindowSize()
   const [mobileView, setMobileView] = React.useState<
     "main" | "highlighter" | "link"
   >("main")
   const toolbarRef = React.useRef<HTMLDivElement>(null)
+
+  const {getToken} = useAuth();
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -233,7 +239,7 @@ export function SimpleEditor() {
 
     const debouncedSave = debounce(() => {
       const content = editor.getJSON();
-      saveEditorContentToServer(content);
+      saveEditorContentToDatabase(content);
     }, 1000)  //save after every 1s of inactivity
 
     editor.on("update", debouncedSave);
@@ -256,9 +262,29 @@ export function SimpleEditor() {
     }
   }, [isMobile, mobileView])
 
-  // async function saveEditorContentToServer(content: any) {
-  //     const response = await prismaClient.user.c
-  // }
+  async function saveEditorContentToDatabase(content: any) {
+    const token = await getToken();
+    // console.log(token)
+    const title = extractTitle(content) || "";
+    // console.log(title)
+      // const response = await prismaClient.blog.create({
+      //   data: {
+      //     content: content,
+      //     title: title,
+      //     authorId: clerkUserId
+      //   }
+      // })
+      const response = await axios.post(`${BACKEND_URL}/blog/createBlog`, {
+        content: content,
+        title: title,
+        authorId: clerkUserId
+      }, {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      }
+      )
+  }
 
   return (
     <EditorContext.Provider value={{ editor }}>

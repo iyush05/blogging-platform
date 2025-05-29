@@ -5,7 +5,7 @@ export default function CreateBlog ({ params }: { params: Promise<{ slug: string
     const { slug } = use(params);
     return (
         <>
-            <SimpleEditor clerkUserId={slug}/>
+            <SimpleEditor slug={slug}/>
         </>
     )
 }

@@ -1,10 +1,16 @@
 import { prismaClient } from "db/client"
 import CreateProfileModal from "@/components/createProfile";
 import { auth } from "@clerk/nextjs/server"
+import CreateBlogButton from "@/components/createBlogButton";
+import { redirect } from "next/navigation";
 
 export default async function Home() {
-
-  const { userId } = await auth();
+  const { userId } = await auth();    // clerkUserId
+  if(!userId) {
+    // redirect("/sign-in")
+    return 
+  }
+  console.log("userId: ", userId)
   const existingUser = await prismaClient.user.findUnique({
     where: {
       clerkUserId: userId as string
@@ -20,6 +26,7 @@ export default async function Home() {
             <CreateProfileModal />
           </div>
           )}
+          <CreateBlogButton userId={userId!}/>
         </>
   );
 }

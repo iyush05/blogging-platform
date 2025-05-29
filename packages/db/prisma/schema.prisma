@@ -28,7 +28,8 @@ model User {
 
 model Blog {
   id          String      @id @default(uuid())
-  authorId    String
+  authorId    String      
+  slug        String?     @unique
   content     Json
   title       String
   createdAt   DateTime    @default(now())

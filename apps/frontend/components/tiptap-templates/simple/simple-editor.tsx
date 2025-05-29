@@ -4,6 +4,7 @@ import * as React from "react"
 import { EditorContent, EditorContext, useEditor } from "@tiptap/react"
 import debounce from "lodash.debounce"
 import axios from "axios"
+import { useState } from "react"
 
 // --- Tiptap Core Extensions ---
 import { StarterKit } from "@tiptap/starter-kit"
@@ -188,15 +189,33 @@ const MobileToolbarContent = ({
   </>
 )
 
-export function SimpleEditor({clerkUserId}: {clerkUserId: string}) {
+export function SimpleEditor({slug}: {slug: string}) {
   const isMobile = useMobile()
   const windowSize = useWindowSize()
+  const [prevContent, setPrevContent] = useState<any>(null); 
   const [mobileView, setMobileView] = React.useState<
     "main" | "highlighter" | "link"
   >("main")
   const toolbarRef = React.useRef<HTMLDivElement>(null)
 
   const {getToken} = useAuth();
+  
+  React.useEffect(() => {
+    if(!slug) return;
+
+    const fetchContent = async () => {
+      const token = await getToken();
+        const response = await axios.get(`${BACKEND_URL}/blog/getBlog`, {
+          params: {slug: slug},
+        });
+        const content = response.data.content;
+        setPrevContent(content);
+        editor?.commands.setContent(content);
+        console.log(content)
+        console.log("prevcontent", prevContent);
+      }
+      fetchContent();
+  }, [])        //problem : useEditor({...}) runs before the prevContent is fetched (because the fetch is async). So on first render:
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -225,13 +244,13 @@ export function SimpleEditor({clerkUserId}: {clerkUserId: string}) {
         accept: "image/*",
         maxSize: MAX_FILE_SIZE,
         limit: 3,
-        upload: handleImageUpload,
+        upload: (file) => handleImageUpload(file, { slug }),
         onError: (error) => console.error("Upload failed:", error),
       }),
       TrailingNode,
       Link.configure({ openOnClick: false }),
     ],
-    content: content,
+    content: content,  //content
   })
 
   React.useEffect(() => {
@@ -239,7 +258,7 @@ export function SimpleEditor({clerkUserId}: {clerkUserId: string}) {
 
     const debouncedSave = debounce(() => {
       const content = editor.getJSON();
-      saveEditorContentToDatabase(content);
+      updateEditorContentToDatabase(content);
     }, 1000)  //save after every 1s of inactivity
 
     editor.on("update", debouncedSave);
@@ -262,7 +281,24 @@ export function SimpleEditor({clerkUserId}: {clerkUserId: string}) {
     }
   }, [isMobile, mobileView])
 
-  async function saveEditorContentToDatabase(content: any) {
+  // saveEditorContentToDatabase(content);
+
+  // async function saveEditorContentToDatabase(content:any) {
+  //   const token = await getToken();
+  //   const title = extractTitle(content) || "";
+
+  //   const response = await axios.post(`${BACKEND_URL}/blog/createBlog`, {
+  //     content: content,
+  //     title: title,
+  //     authorId: clerkUserId
+  //   }, {
+  //     headers: {
+  //       "Authorization": `Bearer ${token}`
+  //     }
+  //   })
+  // }
+
+  async function updateEditorContentToDatabase(content: any) {
     const token = await getToken();
     // console.log(token)
     const title = extractTitle(content) || "";
@@ -274,10 +310,11 @@ export function SimpleEditor({clerkUserId}: {clerkUserId: string}) {
       //     authorId: clerkUserId
       //   }
       // })
-      const response = await axios.post(`${BACKEND_URL}/blog/createBlog`, {
+      const response = await axios.post(`${BACKEND_URL}/blog/updateBlog`, {
         content: content,
         title: title,
-        authorId: clerkUserId
+        // authorId: clerkUserId,
+        slug: slug
       }, {
         headers: {
           "Authorization": `Bearer ${token}`

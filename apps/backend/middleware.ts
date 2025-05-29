@@ -7,7 +7,7 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
     // console.log(token);
     
     if(!token) {
-        res.status(401).json({message: "Unauthorized"});
+        res.status(401).json({message: "No token Unauthorized"});
         return
     }
     const decoded = jwt.verify(token, process.env.JWT_PUBLIC_KEY!, {
@@ -16,7 +16,7 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
     // console.log(decoded);
     
     if(!decoded) {
-        res.status(401).json({message: "Unauthorized"})
+        res.status(401).json({message: "decoded giv BT Unauthorized"})
         return 
     }
 
@@ -24,10 +24,10 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
     // console.log({"userId": userId});
     
     if(!userId) {
-        res.status(401).json({message: "Unauthorized"})
+        res.status(401).json({message: "userid ntpresent Unauthorized"})
         return
     }
 
-    req.userId = userId;
+    req.userId = userId;        // this is clerkUserId
     next();
 }

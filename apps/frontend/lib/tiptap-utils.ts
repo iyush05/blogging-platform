@@ -1,5 +1,9 @@
+import { BACKEND_URL } from "@/config"
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3"
+import { Upload } from "@aws-sdk/lib-storage"
 import type { Attrs, Node } from "@tiptap/pm/model"
 import type { Editor } from "@tiptap/react"
+import axios from 'axios'
 
 export const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 
@@ -136,9 +140,37 @@ export function findNodePosition(props: {
  */
 export const handleImageUpload = async (
   file: File,
+  extraData?: { slug: string },
   onProgress?: (event: { progress: number }) => void,
-  abortSignal?: AbortSignal
+  abortSignal?: AbortSignal,
 ): Promise<string> => {
+
+  // const s3 = new S3Client({
+  //   region: "us-east-1",
+  //   credentials: {
+  //     accessKeyId: process.env.AWS_ACCESS_KEY as string,
+  //     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string 
+  //   },
+  // });
+
+  const key = `blogs/${extraData?.slug}/${file.name}`;
+
+  // const upload = new Upload({
+  //   client: s3,
+  //   params: {
+  //     Bucket: "gdg-blogging-platform",
+  //     Key: key,
+  //     Body: file,
+  //     ContentType: file.type,
+  //   },
+  // })
+
+//   upload.on("httpUploadProgress", (progress) => {
+//   const loaded = progress.loaded ?? 0
+//   const total = progress.total ?? 1 // prevent divide-by-zero
+//   const percent = Math.round((loaded / total) * 100)
+//   onProgress?.({ progress: percent })
+// })
   // Validate file
   if (!file) {
     throw new Error("No file provided")
@@ -151,18 +183,38 @@ export const handleImageUpload = async (
   }
 
   // For demo/testing: Simulate upload progress
-  for (let progress = 0; progress <= 100; progress += 10) {
-    if (abortSignal?.aborted) {
-      throw new Error("Upload cancelled")
-    }
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    onProgress?.({ progress })
-  }
+  // for (let progress = 0; progress <= 100; progress += 10) {
+  //   if (abortSignal?.aborted) {
+  //     throw new Error("Upload cancelled")
+  //   }
+  //   await new Promise((resolve) => setTimeout(resolve, 500))
+  //   onProgress?.({ progress })
+  // }
 
-  return "/images/placeholder-image.png"
+  const signedUrl = await axios.get(`${BACKEND_URL}/aws/upload`, {
+    params: {
+      slug: extraData?.slug,
+      fileName: file.name,
+      fileType: file.type
+    }
+  })
+  // console.log(signedUrl.data.url);
+  await axios.put(signedUrl.data.url, file, {
+    headers: {
+      "Content-Type": file.type,
+    },
+    onUploadProgress: (event) => {
+      if (event.total) {
+        const percent = Math.round((event.loaded / event.total) * 100);
+        onProgress?.({ progress: event.loaded });      }
+    },
+  });
 
   // Uncomment for production use:
   // return convertFileToBase64(file, abortSignal);
+
+  const publicUrl = `https://gdg-blogging-platform.s3.us-east-1.amazonaws.com/blogs/${extraData?.slug}/${file.name}`;
+  return publicUrl;
 }
 
 /**

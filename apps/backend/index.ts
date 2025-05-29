@@ -2,6 +2,7 @@ import express from 'express'
 import cors from "cors"
 import authRoutes from "./authRoutes.ts"
 import blogRoutes from "./blogRoutes.ts"
+import awsRoutes from "./awsRoutes.ts"
 
 const app = express();
 
@@ -10,6 +11,7 @@ app.use(cors())
 
 app.use('/auth', authRoutes)
 app.use('/blog', blogRoutes)
+app.use('/aws', awsRoutes)
 
 app.listen(9090, () => {
     console.log("Server running on port 9090");

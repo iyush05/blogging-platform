@@ -45,7 +45,8 @@ import { ImageUploadButton } from "@/components/tiptap-ui/image-upload-button"
 import { ListDropdownMenu } from "@/components/tiptap-ui/list-dropdown-menu"
 import { BlockQuoteButton } from "@/components/tiptap-ui/blockquote-button"
 import { CodeBlockButton } from "@/components/tiptap-ui/code-block-button"
-import {
+import { ProofReadButton } from "@/components/tiptap-ui/proofread-button"
+import { 
   ColorHighlightPopover,
   ColorHighlightPopoverContent,
   ColorHighlightPopoverButton,
@@ -63,6 +64,7 @@ import { UndoRedoButton } from "@/components/tiptap-ui/undo-redo-button"
 import { ArrowLeftIcon } from "@/components/tiptap-icons/arrow-left-icon"
 import { HighlighterIcon } from "@/components/tiptap-icons/highlighter-icon"
 import { LinkIcon } from "@/components/tiptap-icons/link-icon"
+import { ProofReadIcon } from "@/components/tiptap-icons/proofread-icon"
 
 // --- Hooks ---
 import { useMobile } from "@/hooks/use-mobile"
@@ -149,6 +151,12 @@ const MainToolbarContent = ({
         <ImageUploadButton text="Add" />
       </ToolbarGroup>
 
+      <ToolbarSeparator />
+
+      <ToolbarGroup>
+        <ProofReadButton type="bold"/>
+      </ToolbarGroup>
+
       <Spacer />
 
       {isMobile && <ToolbarSeparator />}
@@ -192,31 +200,42 @@ const MobileToolbarContent = ({
 export function SimpleEditor({slug}: {slug: string}) {
   const isMobile = useMobile()
   const windowSize = useWindowSize()
-  const [prevContent, setPrevContent] = useState<any>(null); 
+  const [fetchedContent, setFetchedContent] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true)
   const [mobileView, setMobileView] = React.useState<
     "main" | "highlighter" | "link"
   >("main")
   const toolbarRef = React.useRef<HTMLDivElement>(null)
 
-  const {getToken} = useAuth();
+  const {getToken} = useAuth()
   
   React.useEffect(() => {
-    if(!slug) return;
+    if (!slug) {
+      setIsLoading(false)
+      return
+    }
 
     const fetchContent = async () => {
-      const token = await getToken();
+      try {
+        const token = await getToken()
         const response = await axios.get(`${BACKEND_URL}/blog/getBlog`, {
           params: {slug: slug},
-        });
-        const content = response.data.content;
-        setPrevContent(content);
-        editor?.commands.setContent(content);
-        console.log(content)
-        console.log("prevcontent", prevContent);
+        })
+        const content = response.data.content
+        setFetchedContent(content)
+        console.log("Fetched content:", content)
+      } catch (error) {
+        console.error("Failed to fetch content:", error)
+        setFetchedContent(content)
+      } finally {
+        setIsLoading(false)
       }
-      fetchContent();
-  }, [])        //problem : useEditor({...}) runs before the prevContent is fetched (because the fetch is async). So on first render:
+    }
+    
+    fetchContent()
+  }, [slug, getToken])
 
+  // Initialize editor only after content is loaded
   const editor = useEditor({
     immediatelyRender: false,
     editorProps: {
@@ -250,20 +269,20 @@ export function SimpleEditor({slug}: {slug: string}) {
       TrailingNode,
       Link.configure({ openOnClick: false }),
     ],
-    content: content,  //content
-  })
+    content: fetchedContent || content, 
+  }, [fetchedContent]) 
 
+  // Auto-save functionality
   React.useEffect(() => {
-    if(!editor) return
+    if (!editor) return
 
     const debouncedSave = debounce(() => {
-      const content = editor.getJSON();
-      updateEditorContentToDatabase(content);
-    }, 1000)  //save after every 1s of inactivity
+      const content = editor.getJSON()
+      updateEditorContentToDatabase(content)
+    }, 1000) // Save after every 1s of inactivity
 
-    editor.on("update", debouncedSave);
+    editor.on("update", debouncedSave)
 
-    //unmount
     return () => {
       editor.off("update", debouncedSave)
       debouncedSave.cancel()
@@ -281,46 +300,43 @@ export function SimpleEditor({slug}: {slug: string}) {
     }
   }, [isMobile, mobileView])
 
-  // saveEditorContentToDatabase(content);
-
-  // async function saveEditorContentToDatabase(content:any) {
-  //   const token = await getToken();
-  //   const title = extractTitle(content) || "";
-
-  //   const response = await axios.post(`${BACKEND_URL}/blog/createBlog`, {
-  //     content: content,
-  //     title: title,
-  //     authorId: clerkUserId
-  //   }, {
-  //     headers: {
-  //       "Authorization": `Bearer ${token}`
-  //     }
-  //   })
-  // }
-
   async function updateEditorContentToDatabase(content: any) {
-    const token = await getToken();
-    // console.log(token)
-    const title = extractTitle(content) || "";
-    // console.log(title)
-      // const response = await prismaClient.blog.create({
-      //   data: {
-      //     content: content,
-      //     title: title,
-      //     authorId: clerkUserId
-      //   }
-      // })
+    try {
+      const token = await getToken()
+      const title = extractTitle(content) || ""
+      
       const response = await axios.post(`${BACKEND_URL}/blog/updateBlog`, {
         content: content,
         title: title,
-        // authorId: clerkUserId,
         slug: slug
       }, {
         headers: {
           "Authorization": `Bearer ${token}`
         }
-      }
-      )
+      })
+      
+      console.log("Content saved successfully")
+    } catch (error) {
+      console.error("Failed to save content:", error)
+    }
+  }
+
+  // show loading state while fetching content TODO: loader add krna hai edhar 
+  if (isLoading) {
+    return (
+      <div className="simple-editor-loading">
+        <p>Loading editor...</p>
+      </div>
+    )
+  }
+
+  // dont render editor until content is fetcched
+  if (!editor) {
+    return (
+      <div className="simple-editor-loading">
+        <p>Initializing editor...</p>
+      </div>
+    )
   }
 
   return (

@@ -21,9 +21,10 @@ model User {
   name      String?
   username  String
   imageUrl  String?
-  blogs      Blog[]      
+  blogs     Blog[]      
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
+  likes     Like[]        
 }
 
 model Blog {
@@ -34,5 +35,28 @@ model Blog {
   title       String
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+  readTime    Int
+  likes       Like[]
+  comments    Comment[]
   author      User        @relation(fields: [authorId], references: [clerkUserId])
+}
+
+model Like {
+  id          String      @id @default(uuid())
+  userId      String
+  blogId      String
+  blog        Blog        @relation(fields: [blogId], references: [id])
+  createdAt   DateTime    @default(now())
+  user        User        @relation(fields: [userId], references: [clerkUserId])
+
+  @@unique([blogId, userId])
+}
+
+model Comment {
+  id          String      @id @default(uuid())
+  userId      String      
+  blogId      String  
+  content     String
+  createdAt   DateTime    @default(now())
+  blog        Blog        @relation(fields: [blogId], references: [id])
 }

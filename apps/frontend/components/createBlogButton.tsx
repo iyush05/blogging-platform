@@ -5,6 +5,7 @@ import { auth } from "@clerk/nextjs/server";
 import { BACKEND_URL } from "@/config";
 import { useAuth } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
+import { calculateReadTime } from "@/utils/calculateReadTime";
 
 export default function CreateBlogButton({userId}: {userId: string}) {
     const { getToken } = useAuth();
@@ -12,7 +13,7 @@ export default function CreateBlogButton({userId}: {userId: string}) {
   async function handleClick() {
     const blogSlug = generateRandomSlug();
     const token = await getToken();
-    console.log("blogSlug while clicking on button", blogSlug)
+
     const content = {
                         "type": "doc",
                         "content": [
@@ -43,12 +44,15 @@ export default function CreateBlogButton({userId}: {userId: string}) {
                           }
                         ]
                       };
+    
+    const readTime = calculateReadTime(content);
 
     const response = await axios.post(`${BACKEND_URL}/blog/createBlog`, {
       content: content,
       authorId: userId,
       slug: blogSlug,
-      title: "Title"
+      title: "Title",
+      readTime: readTime
     }, {
         headers: {
             "Authorization": `Bearer ${token}`

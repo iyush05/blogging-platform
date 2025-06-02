@@ -85,6 +85,7 @@ import { prismaClient } from "db/client"
 import extractTitle from "../parser"
 import { BACKEND_URL } from "@/config"
 import { useAuth } from "@clerk/nextjs"
+import { calculateReadTime } from "@/utils/calculateReadTime"
 
 const MainToolbarContent = ({
   onHighlighterClick,
@@ -223,7 +224,6 @@ export function SimpleEditor({slug}: {slug: string}) {
         })
         const content = response.data.content
         setFetchedContent(content)
-        console.log("Fetched content:", content)
       } catch (error) {
         console.error("Failed to fetch content:", error)
         setFetchedContent(content)
@@ -304,11 +304,12 @@ export function SimpleEditor({slug}: {slug: string}) {
     try {
       const token = await getToken()
       const title = extractTitle(content) || ""
-      
+      const readTime = calculateReadTime(content)
       const response = await axios.post(`${BACKEND_URL}/blog/updateBlog`, {
         content: content,
         title: title,
-        slug: slug
+        slug: slug,
+        readTime: readTime
       }, {
         headers: {
           "Authorization": `Bearer ${token}`

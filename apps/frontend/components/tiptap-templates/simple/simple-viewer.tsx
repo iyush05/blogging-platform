@@ -59,7 +59,6 @@ export function SimpleViewer({slug}: {slug: string}) {
         })
         const content = response.data.content
         setFetchedContent(content)
-        console.log("Fetched content:", content)
       } catch (error) {
         console.error("Failed to fetch content:", error)
 
@@ -125,12 +124,15 @@ export function SimpleViewer({slug}: {slug: string}) {
   }
 
   return (
-    <div className="content-wrapper">
+    <div className="content-wrapper flex">
       <EditorContent
         editor={editor}
         role="presentation"
         className="simple-editor-content simple-editor-readonly"
       />
+      {/* <div className="bg-black">
+        Hello
+      </div> */}
     </div>
   )
 }

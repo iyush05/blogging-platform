@@ -3,6 +3,7 @@ import CreateProfileModal from "@/components/createProfile";
 import { auth } from "@clerk/nextjs/server"
 import CreateBlogButton from "@/components/createBlogButton";
 import { redirect } from "next/navigation";
+import HomeBlogPage from "@/components/HomeBlogPage";
 
 export default async function Home() {
   const { userId } = await auth();    // clerkUserId
@@ -27,6 +28,7 @@ export default async function Home() {
           </div>
           )}
           <CreateBlogButton userId={userId!}/>
+          <HomeBlogPage userId={userId}/>
         </>
   );
 }

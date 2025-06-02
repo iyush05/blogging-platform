@@ -25,7 +25,8 @@ router.post("/createBlog", authMiddleware, async(req, res) => {
             authorId: authorId,
             content: req.body.content,
             title: req.body.title,
-            slug: req.body.slug
+            slug: req.body.slug,
+            readTime: req.body.readTime
         }
     })
         res.status(200).json({message: "Blog Created"})
@@ -44,7 +45,8 @@ router.post("/updateBlog", authMiddleware, async(req, res) => {
             data: {
                 // authorId: authorId,
                 content: req.body.content,
-                title: req.body.title
+                title: req.body.title,
+                readTime: req.body.readTime
             }
     })
         res.status(200).json({message: "Blog Created"})
@@ -63,6 +65,42 @@ router.get("/getBlog", async(req, res) => {
         res.status(200).json(response)
     } catch(e) {
         res.status(404).json({message: "Error fetching blog"})
+    }
+})
+
+router.post("/like", authMiddleware, async(req, res) => {
+    try {
+        const userId = req.userId || "";
+        const blogId = req.body.blogId;
+
+        const response = await prismaClient.like.create({
+            data: {
+                userId: userId,
+                blogId: blogId
+            }
+        })
+        
+        res.status(200).json(response)
+    } catch(err) {
+        console.error("Error in /like route:", err);
+        res.status(401).json({message: "like api not working"});
+    }
+})
+
+router.delete('/like', authMiddleware, async(req, res) => {
+    const userId = req.userId;
+    const blogId = req.body.blogId;
+    try {
+        const response = await prismaClient.like.deleteMany({
+            where: {
+                userId,
+                blogId,
+            },
+        })
+        res.status(200).json({ suceess: true})
+    } catch(err) {
+        console.error("Error deleting like:", err);
+        res.status(401).json({message: "Error deleting like"});
     }
 })
 

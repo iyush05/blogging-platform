@@ -16,7 +16,7 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
     // console.log(decoded);
     
     if(!decoded) {
-        res.status(401).json({message: "decoded giv BT Unauthorized"})
+        res.status(401).json({message: "decoded givin BT Unauthorized"})
         return 
     }
 

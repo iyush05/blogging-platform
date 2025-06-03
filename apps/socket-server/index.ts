@@ -20,9 +20,10 @@ io.on("connection", (socket) => {
     socket.on("dislike", ({ blogId, userId, delta}) => {
         io.emit("like_update", {blogId, userId, delta})
     })
-    socket.on("comment", ({ blogId, comment }) => {
-        io.emit("comment_update", { blogId, comment});
-    });
+
+    socket.on("comment", () => {
+        io.emit("comment_update");
+    })
 
     socket.on("disconnect", () => {
         console.log("user disconnected");

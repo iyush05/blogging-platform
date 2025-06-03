@@ -62,10 +62,6 @@ export default function BlogCard ({
   const { getToken } = useAuth();
 
 
-  // if(isLike) {
-  //   setIsLiked(true);
-  // }
-
   useEffect(() => {
     if(isLike)
       setIsLiked(true);
@@ -94,7 +90,6 @@ export default function BlogCard ({
       socketRef.current.emit("like", { blogId: id, userId, delta})
       onLike();
     } catch (err) {
-          //undo if failure
           setIsLiked(prevLiked);
           setLikes(prevLikes);
           console.error("Failed to like the post:", err);

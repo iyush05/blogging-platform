@@ -104,4 +104,44 @@ router.delete('/like', authMiddleware, async(req, res) => {
     }
 })
 
+router.post('/comment', authMiddleware, async(req, res) => {
+    const userId = req.userId;
+    const blogId = req.body.blogId;
+    const content = req.body.content;
+    const slug = req.body.slug
+    try {
+        const comment = await prismaClient.comment.create({
+            data: {
+                userId: userId as string,
+                blogId: blogId,
+                content: content,
+                slug: slug
+            }
+        })
+        res.status(200).json({message: "Commented added"})
+    } catch(err) {
+        console.error("error adding comment:", err)
+        res.status(401).json({message: "Error adding comment"})
+    }
+})
+
+router.get('/comment', async(req, res) => {
+    const blogId = req.query.blogId;
+    try {
+        const response = await prismaClient.comment.findMany({
+            where: {
+                blogId: blogId as string,
+            }, include: {
+                blog: true,
+                user: true,
+            }
+        })
+        console.log(response)
+        res.status(200).json(response)
+    } catch(err) {
+        console.error("Error fetching blogs:", err)
+        res.status(401).json({message: "Error fetching comments"})
+    }
+})
+
 export default router

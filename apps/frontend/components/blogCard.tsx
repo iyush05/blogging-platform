@@ -141,8 +141,8 @@ export default function BlogCard ({
       if (blogId === id) setLikes((prev) => prev + delta);
     });
 
-    socketRef.current.on("comment_update", ({ blogId, comment }) => {
-      if(blogId === id) setComments((prev) => [...prev, comment]);
+    socketRef.current.on("comment_update", ({ blogId }) => {
+      if(blogId === id) setComments(prev => prev + 1);
     });
 
     return () => {

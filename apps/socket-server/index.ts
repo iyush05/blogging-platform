@@ -21,8 +21,8 @@ io.on("connection", (socket) => {
         io.emit("like_update", {blogId, userId, delta})
     })
 
-    socket.on("comment", () => {
-        io.emit("comment_update");
+    socket.on("comment", ({ blogId }) => {
+        io.emit("comment_update", { blogId });
     })
 
     socket.on("disconnect", () => {

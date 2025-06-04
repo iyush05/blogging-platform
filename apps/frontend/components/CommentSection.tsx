@@ -80,7 +80,7 @@ export default function CommentSection({ blogId, slug }: CommentSectionProps) {
 
       if (response) {
         setNewComment('');
-        socketRef.current.emit("comment", { blogId: blogId, userId: user, newComment: newComment})
+        socketRef.current.emit("comment", { blogId: blogId })
         await fetchComments();
       } else {
         console.error('Failed to post comment');

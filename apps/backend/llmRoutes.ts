@@ -30,7 +30,7 @@ router.get('/summary', async (req, res) => {
             },
         ],
         config: {
-            systemInstruction: `You will be given a blog in JSON format. This JSON contains a structured representation of a blog post, including headings, paragraphs, and other elements. Your task is:
+            systemInstruction: `You will be given a blog in JSON format. This JSON contains a structured r post, includingepresentation of a blog headings, paragraphs, and other elements. Your task is:
                                 Extract only the values of all "text" fields present anywhere in the JSON structure.
                                 Ignore all other keys, types, or formatting details.
                                 Using the collected text values, generate a concise summary in NOT more than 50 words that captures the overall meaning and essence of the blog.`

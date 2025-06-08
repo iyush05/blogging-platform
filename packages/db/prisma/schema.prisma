@@ -21,11 +21,27 @@ model User {
   name      String?
   username  String
   imageUrl  String?
+  bio       String?
   blogs     Blog[]      
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
   likes     Like[]        
   comments  Comment[]
+  sentRequests     Connection[] @relation("Requesters")
+  receivedRequests Connection[] @relation("Receivers")
+}
+
+model Connection {
+  id         String   @id @default(cuid())
+  requester  User     @relation("Requesters", fields: [requesterId], references: [id])
+  requesterId String
+
+  receiver   User     @relation("Receivers", fields: [receiverId], references: [id])
+  receiverId String
+
+  status     ConnectionStatus  @default(PENDING)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model Blog {
@@ -62,4 +78,10 @@ model Comment {
   createdAt   DateTime    @default(now())
   blog        Blog        @relation(fields: [blogId], references: [id])
   user        User        @relation(fields: [userId], references: [clerkUserId])
+}
+
+enum ConnectionStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
 }

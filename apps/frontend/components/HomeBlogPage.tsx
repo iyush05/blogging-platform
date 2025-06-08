@@ -43,6 +43,7 @@ export default async function HomeBlogPage ({userId} : {userId: string}) {
                     }}
                     isLike={isLiked(blog)}
                     currentUserId={userId}
+                    slug={blog.slug}
                 />
             ))}
         </>

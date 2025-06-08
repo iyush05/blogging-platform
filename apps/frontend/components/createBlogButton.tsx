@@ -1,17 +1,18 @@
 'use client'
 import axios from "axios"
 import { generateRandomSlug } from "@/utils/generateRandomSlug";
-import { auth } from "@clerk/nextjs/server";
 import { BACKEND_URL } from "@/config";
 import { useAuth } from "@clerk/nextjs";
-import { redirect } from "next/navigation";
 import { calculateReadTime } from "@/utils/calculateReadTime";
+import { useRouter } from "next/navigation";
 
 export default function CreateBlogButton({userId}: {userId: string}) {
     const { getToken } = useAuth();
-
-  async function handleClick() {
     const blogSlug = generateRandomSlug();
+
+    const router = useRouter()
+  async function handleClick() {
+    
     const token = await getToken();
 
     const content = {
@@ -58,7 +59,7 @@ export default function CreateBlogButton({userId}: {userId: string}) {
             "Authorization": `Bearer ${token}`
         }
     })
-    redirect(`/createBlog/${blogSlug}`);
+    router.push(`/createBlog/${blogSlug}`);
   }
     return(
         <>

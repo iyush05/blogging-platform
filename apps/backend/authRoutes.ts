@@ -6,14 +6,15 @@ const router = express.Router();
 
 router.post('/createProfile', authMiddleware, async(req, res) => {
         const userId = req.userId || "";
+        const { name, email, username, imageUrl }  = req.body;
         try {
             const user = await prismaClient.user.create({
             data: {
                 clerkUserId: userId,
-                name: req.body.name,
-                email: req.body.email,
-                username: req.body.username,
-                imageUrl: req.body.imageUrl
+                name: name,
+                email: email,
+                username: username,
+                imageUrl: imageUrl
             }
         })
             res.status(200).json(user)

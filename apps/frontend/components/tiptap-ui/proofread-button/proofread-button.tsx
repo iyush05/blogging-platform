@@ -21,6 +21,7 @@ import { isMarkInSchema } from "@/lib/tiptap-utils"
 // --- UI Primitives ---
 import type { ButtonProps } from "@/components/tiptap-ui-primitive/button"
 import { Button } from "@/components/tiptap-ui-primitive/button"
+import { redirect } from "next/navigation"
 
 export type Mark =
   | "bold"
@@ -69,16 +70,13 @@ export const ProofReadButton = React.forwardRef<HTMLButtonElement, MarkButtonPro
     const editor = useTiptapEditor(providedEditor)
 
     const handleClick = async() => {
-        /* TODO
-        button click hone pe gemini ko content send krna and then result fetch krke text editor refresh krna 
-        -- will do it the last prob - 7th june
-        */
+        redirect('/');
     }
 
     return (
       <Button 
         onClick={handleClick}>
-        Proofread
+        Submit
       </Button>
     )
   }

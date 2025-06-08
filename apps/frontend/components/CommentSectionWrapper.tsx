@@ -9,5 +9,5 @@ interface CommentSectionWrapperProps {
 }
 
 export default function CommentSectionWrapper({ blogId, slug }: CommentSectionWrapperProps) {
-  return <CommentSection blogId={blogId} slug={slug} />;
+  return <div id='comment-section'><CommentSection blogId={blogId} slug={slug} /></div>;
 }

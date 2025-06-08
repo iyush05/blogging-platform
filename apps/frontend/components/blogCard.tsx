@@ -5,6 +5,8 @@ import io from "socket.io-client";
 import axios from 'axios';
 import { useAuth } from '@clerk/nextjs';
 import { BACKEND_URL } from '@/config';
+import { redirect, useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 type Like = {
   userId: string
@@ -31,6 +33,7 @@ type BlogCardProps = {
   initialComments: number;
   isFollowing: boolean;
   currentUserId: string;
+  slug: string;
   onAuthorClick?: () => void;
   onLike?: () => void;
   onComment?: () => void;
@@ -49,6 +52,7 @@ export default function BlogCard ({
   isFollowing,
   isLike,
   currentUserId,
+  slug,
   onAuthorClick = () => console.log(`Navigate to 's profile`),
   onLike = () => console.log('Like clicked'),
   onComment = () => console.log('Comment clicked'),
@@ -61,6 +65,7 @@ export default function BlogCard ({
   const [comments, setComments] = useState(initialComments);
   const { getToken } = useAuth();
 
+  const router = useRouter();
 
   useEffect(() => {
     if(isLike)
@@ -115,18 +120,28 @@ export default function BlogCard ({
   };
 
   const handleFollow = () => {
+    // try {
+    //   const follow = await axios.post(`${BACKEND_URL}/user/follow`, {
+
+    //   })
+    // }
     setFollowing(!following);
     onFollow();
   };
 
-  const formatDate = () => {
-    const date = new Date();
+  const formatDate = (uploadedDate: any) => {
+    // const date = new Date();
+    const date = uploadedDate;
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     });
   };
+
+  const rdirect = () => {
+    redirect(`/blog/${slug}`)
+  }
 
   const handleAuthorClick = () => {
     onAuthorClick();
@@ -154,7 +169,7 @@ export default function BlogCard ({
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-sm border border-gray-200">
       
-      <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 leading-tight">
+      <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 leading-tight cursor-pointer" onClick={rdirect}>
         {title}
       </h1>
 
@@ -188,12 +203,12 @@ export default function BlogCard ({
             {following ? (
               <>
                 <UserCheck size={16} />
-                Following
+                
               </>
             ) : (
               <>
                 <UserPlus size={16} />
-                Follow
+                Connect
               </>
             )}
           </button>
@@ -203,7 +218,7 @@ export default function BlogCard ({
         <div className="flex items-center gap-4 text-sm text-gray-500">
           <div className="flex items-center gap-1">
             <Calendar size={16} />
-            <span>{formatDate()}</span>
+            <span>{formatDate(uploadedDate)}</span>
           </div>
           <div className="flex items-center gap-1">
             <Clock size={16} />
@@ -229,13 +244,14 @@ export default function BlogCard ({
           <span className="font-medium">{likes}</span>
         </button>
 
+        <Link href={`/blog/${slug}#comment-section`}>
         <button
-          onClick={onComment}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-50 text-gray-700 hover:bg-gray-100 transition-all duration-200"
         >
           <MessageCircle size={20} />
           <span className="font-medium">{comments}</span>
         </button>
+        </Link>
 
         <button
           onClick={onShare}

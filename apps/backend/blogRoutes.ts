@@ -60,6 +60,9 @@ router.get("/getBlog", async(req, res) => {
         const response = await prismaClient.blog.findUnique({
             where: {
                 slug: req.query.slug as string
+            }, 
+            include: {
+                author: true
             }
         })
         res.status(200).json(response)

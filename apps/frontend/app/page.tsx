@@ -31,11 +31,11 @@ export default async function Home() {
   return (
         <>
         <Navbar />
-          {show && (
+          {/* {show && (
             <div className="absolute inset-0 flex items-center justify-center z-50">
             <CreateProfileModal />
           </div>
-          )}
+          )} */}
           <div className="grid grid-cols-8">
             <div className="col-span-2 p-2 hidden md:block pt-8">
               {/* <CreateBlogButton userId={userId!}/> */}

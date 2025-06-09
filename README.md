@@ -1,84 +1,148 @@
-# Turborepo starter
+# Blogging Platform 📝
 
-This Turborepo starter is maintained by the Turborepo core team.
+A full-featured, scalable blogging platform built using a monorepo architecture powered by Turborepo. Includes real-time collaboration, LLM-enhanced capabilities, AWS support, and clean code organization.
 
-## Using this example
+---
 
-Run the following command:
+## 🔧 Tech Stack
 
-```sh
-npx create-turbo@latest
+- **Frontend**: Next.js (Bun runtime)
+- **Backend**: Express.js (REST API)
+- **Realtime**: Socket.IO
+- **AI Integration**: LLM routes
+- **Storage**: AWS (S3)
+- **Monorepo Tooling**: Turborepo
+- **Package Manager**: Bun 
+
+---
+
+## 📁 Monorepo Structure
+
+```bash
+blogging-platform/
+├── apps/
+│   ├── backend/          # Express API with multiple route files
+│   ├── frontend/         # Frontend app (Next.js)
+│   ├── docs/             # Documentation site (under development)
+│   ├── socket-server/    # Socket.IO server
+├── packages/             # Shared utilities / config (Prisma Setup)
+├── package.json          # Root-level script and dependency manager
+├── turbo.json            # Turborepo configuration
+├── bun.lock              # Bun lockfile
+└── .gitignore
 ```
 
-## What's inside?
+---
 
-This Turborepo includes the following packages/apps:
+## 🚀 Getting Started
 
-### Apps and Packages
+### 1. Clone the repo
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-pnpm build
+```bash
+git clone https://github.com/iyush05/blogging-platform.git
+cd blogging-platform
 ```
 
-### Develop
+### 2. Install dependencies
 
-To develop all apps and packages, run the following command:
+Using **Bun** (preferred):
 
-```
-cd my-turborepo
-pnpm dev
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-npx turbo login
+```bash
+bun install
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+Or fallback to **npm**:
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-npx turbo link
+```bash
+npm install
 ```
 
-## Useful Links
+### 3. Start All Services
 
-Learn more about the power of Turborepo:
+Make sure you run the backend, frontend, and socket server individually or via Turborepo.
 
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+```bash
+# Backend
+cd apps/backend
+bun index.ts 
+
+# Frontend
+cd apps/frontend
+bun next dev
+
+# Socket Server
+cd apps/socket-server
+bun index.ts
+```
+
+---
+
+## 🌐 API Overview
+
+`apps/backend/` folder includes several route files:
+
+| Route File              | Description                     |
+|-------------------------|---------------------------------|
+| `authRoutes.ts`         | Handles user authentication     |
+| `blogRoutes.ts`         | Create, update, delete blogs    |
+| `awsRoutes.ts`          | AWS file upload/download logic  |
+| `llmRoutes.ts`          | AI/LLM-based text processing    |
+| `connectionRoutes.ts`   | Follows/connect-style logic     |
+| `middleware.ts`         | Auth middleware or other logic  |
+
+---
+
+## ⚡ Socket Server
+
+The Socket.IO server in `apps/socket-server/` handles real-time events such as live updates, chat, etc.
+
+Run it with:
+
+```bash
+bun index.ts
+```
+
+---
+
+## 🌍 Environment Variables
+
+Create a `.env` file at the root of each `apps/*` directory based on required environment variables.
+
+You can use a structure like:
+
+```bash
+# .env.example
+
+DATABASE_URL=postgres://user:password@localhost:5432
+AWS_ACCESS_KEY=...
+AWS_SECRET_KEY=...
+JWT_SECRET=your_jwt_secret
+NEXT_PUBLIC_BACKEND_URL=http://localhost:9090
+```
+
+---
+
+## 📦 Scripts
+
+You can use `turbo` to run tasks across all packages:
+
+```bash
+npx turbo run dev --filter=frontend
+npx turbo run dev --filter=backend
+```
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repo
+2. Create your branch: `git checkout -b feature/xyz`
+3. Commit your changes
+4. Push to the branch
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+MIT License © Ayush Kannaujiya
